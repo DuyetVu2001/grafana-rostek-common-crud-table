@@ -38,9 +38,11 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
   const styles = getStyles();
 
   let headers: any[] = [];
+  let keys: any[] = [];
 
   if (data.series[0] && data.series[0].fields) {
     headers = data.series[0].fields.map((field) => field.config?.displayName || field.name);
+    keys = data.series[0].fields.map((field) => field.name);
   }
 
   let coloumns: any[][] = [];
@@ -113,17 +115,18 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
                   `
                 )}
                 key={index1}
-                onClick={() =>
+                onClick={() => {
+                  const data: any = {};
+                  keys.forEach((key, idx) => {
+                    data[key] = record[idx];
+                  });
+
                   setModalUpdate({
                     ...modalUpdate,
                     isOpen: true,
-                    data: {
-                      id: coloumns[index1][0],
-                      name: coloumns[index1][1],
-                      age: coloumns[index1][2],
-                    },
-                  })
-                }
+                    data,
+                  });
+                }}
               >
                 {headers.map((_, index2) => (
                   <td

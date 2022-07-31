@@ -1,7 +1,14 @@
 import React from 'react';
 
 import { Field, Input, Select } from '@grafana/ui';
+import { css, cx } from 'emotion';
 import _ from 'lodash';
+
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+
+/*eslint no-restricted-imports: ["error", "fs"]*/
+import moment from 'moment';
 
 type Props = {
   listInputs: any[];
@@ -82,6 +89,52 @@ export const RenderForm = ({ listInputs, formData = {}, setFormData }: Props) =>
                     value={formData[input.name] || input?.data[0] || ''}
                     onChange={(value) => handleChange(value.value, input.name)}
                   />
+                </Field>
+              );
+
+            case 'date':
+              return (
+                <Field
+                  required
+                  error="Please fill this filed"
+                  disabled={input.disabled}
+                  style={{ width: '100%' }}
+                  label={input.label}
+                >
+                  <div
+                    className={cx(
+                      css`
+                        position: relative;
+                        z-index: 686;
+
+                        & input {
+                          padding: 0 8px;
+                          line-height: 32px;
+                          border: 1px solid rgba(204, 204, 220, 0.15);
+                          border-radius: 2px;
+                        }
+
+                        /* & input:focus {
+                          outline-offset: 2px;
+                          box-shadow: rgb(17 18 23) 0px 0px 0px 2px, rgb(61 113 217) 0px 0px 0px 4px;
+                        } */
+                      `
+                    )}
+                  >
+                    <DatePicker
+                      selected={formData[input.name] ? moment(formData[input.name], 'X').toDate() : null}
+                      dateFormat="dd/MM/yyyy"
+                      onChange={(date) => {
+                        // check date is instance of Date
+
+                        if (date instanceof Date) {
+                          const timestamp = moment(date).format('X');
+
+                          handleChange(timestamp, input.name);
+                        }
+                      }}
+                    />
+                  </div>
                 </Field>
               );
 
