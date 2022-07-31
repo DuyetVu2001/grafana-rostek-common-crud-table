@@ -29,12 +29,12 @@ export default function UpdateModal({ isOpen, patchUrl, data = null, onClose }: 
     if (isOpen) {
       setFormData(data);
 
-      const fechInputs = async () => {
+      const fetchInputs = async () => {
         const { data } = await getFormUpdate(patchUrl);
         setListInputs(data.data || []);
       };
 
-      fechInputs();
+      fetchInputs();
     }
   }, [isOpen, data, patchUrl]);
 

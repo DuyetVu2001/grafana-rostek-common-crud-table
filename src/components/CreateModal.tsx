@@ -19,12 +19,12 @@ export default function CreateModal({ isOpen, postUrl, onClose }: CreateModalPro
     if (isOpen) {
       setFormData({});
 
-      const fechInputs = async () => {
+      const fetchInputs = async () => {
         const { data } = await getFormCreate(postUrl);
         setListInputs(data.data || []);
       };
 
-      fechInputs();
+      fetchInputs();
     }
   }, [isOpen, postUrl]);
 
