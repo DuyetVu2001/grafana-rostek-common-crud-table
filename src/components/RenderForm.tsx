@@ -122,6 +122,7 @@ export const RenderForm = ({ listInputs, formData = {}, setFormData }: Props) =>
                     )}
                   >
                     <DatePicker
+                      required
                       selected={formData[input.name] ? moment(formData[input.name], 'X').toDate() : null}
                       dateFormat="dd/MM/yyyy"
                       onChange={(date) => {
@@ -141,7 +142,13 @@ export const RenderForm = ({ listInputs, formData = {}, setFormData }: Props) =>
             default:
               return (
                 <Field required disabled={input.disabled} style={{ width: '100%' }} label={input.label}>
-                  <Input required type="text" name={input.name} value={formData[input.name]} onChange={handleChange} />
+                  <Input
+                    required
+                    type="text"
+                    name={input.name}
+                    value={formData[input.name] || ''}
+                    onChange={handleChange}
+                  />
                 </Field>
               );
           }
