@@ -6,12 +6,12 @@ import { RenderForm } from './RenderForm';
 
 type CreateModalProps = {
   isOpen: boolean;
-  postUrl: string;
+  baseUrl: string;
 
   onClose: () => void;
 };
 
-export default function CreateModal({ isOpen, postUrl, onClose }: CreateModalProps) {
+export default function CreateModal({ isOpen, baseUrl, onClose }: CreateModalProps) {
   const [formData, setFormData] = useState<any>({});
   const [listInputs, setListInputs] = useState([]);
 
@@ -20,13 +20,13 @@ export default function CreateModal({ isOpen, postUrl, onClose }: CreateModalPro
       setFormData({});
 
       const fetchInputs = async () => {
-        const { data } = await getFormCreate(postUrl);
+        const { data } = await getFormCreate(baseUrl);
         setListInputs(data.data || []);
       };
 
       fetchInputs();
     }
-  }, [isOpen, postUrl]);
+  }, [isOpen, baseUrl]);
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();

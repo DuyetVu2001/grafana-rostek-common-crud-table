@@ -149,10 +149,10 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
       </div>
 
       {/* modals */}
-      <CreateModal postUrl={options.postUrl} isOpen={modalCreate} onClose={() => setModalCreate(false)} />
+      <CreateModal baseUrl={options.baseUrl} isOpen={modalCreate} onClose={() => setModalCreate(false)} />
 
       <UpdateModal
-        patchUrl={options.patchUrl}
+        baseUrl={options.baseUrl}
         isOpen={modalUpdate.isOpen}
         data={modalUpdate?.data}
         onClose={() => setModalUpdate({ ...modalUpdate, isOpen: false, data: null })}

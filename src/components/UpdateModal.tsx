@@ -12,13 +12,13 @@ type User = {
 
 type UpdateModalProps = {
   isOpen: boolean;
-  patchUrl: string;
+  baseUrl: string;
   onClose: () => void;
 
   data?: User | null;
 };
 
-export default function UpdateModal({ isOpen, patchUrl, data = null, onClose }: UpdateModalProps) {
+export default function UpdateModal({ isOpen, baseUrl, data = null, onClose }: UpdateModalProps) {
   const [actualDelete, setActualDelete] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
@@ -30,13 +30,13 @@ export default function UpdateModal({ isOpen, patchUrl, data = null, onClose }: 
       setFormData(data);
 
       const fetchInputs = async () => {
-        const { data } = await getFormUpdate(patchUrl);
+        const { data } = await getFormUpdate(baseUrl);
         setListInputs(data.data || []);
       };
 
       fetchInputs();
     }
-  }, [isOpen, data, patchUrl]);
+  }, [isOpen, data, baseUrl]);
 
   useEffect(() => {
     if (actualDelete) {
