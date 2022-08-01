@@ -1,63 +1,83 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+
 import { PanelProps } from '@grafana/data';
-import { SimpleOptions } from 'types';
+import { Button } from '@grafana/ui';
+import { ColumnTypes, HeaderTypes, SimpleOptions } from 'types';
 import { css, cx } from 'emotion';
-import {
-  Button,
-  stylesFactory,
-  // useTheme
-} from '@grafana/ui';
+
 import CreateModal from 'components/CreateModal';
 import UpdateModal from 'components/UpdateModal';
+import TableCustom from 'components/TableCustom';
+import { getAll, getHeaders } from 'api';
 
 interface Props extends PanelProps<SimpleOptions> {}
 
-const rotate90Degree2DArray = (arr: [any][any]) => {
-  const newArr = [];
-
-  for (let i = 0; i < arr[0].length; i++) {
-    const newRow = [];
-
-    for (let j = arr.length - 1; j >= 0; j--) {
-      newRow.push(arr[j][i]);
-    }
-    newArr.push(newRow.reverse());
-  }
-
-  return newArr;
-};
-
 export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) => {
+  const [headers, setHeaders] = useState<HeaderTypes[] | []>([]);
+  const [columns, setColumns] = useState<ColumnTypes[] | []>([]);
+
   const [modalCreate, setModalCreate] = useState(false);
   const [modalUpdate, setModalUpdate] = useState({
     isOpen: false,
     data: null as any,
   });
 
-  // const theme = useTheme();
-  const styles = getStyles();
+  useEffect(() => {
+    if (options.isRenderTableDataFromUrl && options.baseUrl) {
+      const fetchData = async () => {
+        const { data: columns } = await getAll(options.baseUrl);
+        const { data: headers } = await getHeaders(options.baseUrl);
 
-  let headers: any[] = [];
-  let keys: any[] = [];
+        setHeaders(headers.data || []);
+        setColumns(columns.data || []);
+      };
 
-  if (data.series[0] && data.series[0].fields) {
-    headers = data.series[0].fields.map((field) => field.config?.displayName || field.name);
-    keys = data.series[0].fields.map((field) => field.name);
-  }
+      fetchData();
+      return;
+    }
 
-  let coloumns: any[][] = [];
+    if (data.series[0] && data.series[0].fields) {
+      const series1 = data.series[0];
+      const fields = series1.fields;
+      const numberOfRecords = series1.length;
 
-  if (data.series[0] && data.series[0].fields) {
-    coloumns = data.series[0].fields.map((field) => field.values.toArray());
+      // get headers
+      const headers =
+        fields.length > 0
+          ? fields.map((field) => ({
+              key: field.name,
+              title: field.config?.displayName || field.name,
+            }))
+          : [];
 
-    coloumns = rotate90Degree2DArray(coloumns);
-  }
+      // get columns data
+      const sourceColumns: { [key: string]: any[] } = {};
+      fields.forEach((field) => {
+        sourceColumns[field.name] = field.values.toArray();
+      });
+
+      // convert "sourceColumns" to expected "columns" format
+      const columns = [];
+      for (let index = 0; index < numberOfRecords; index++) {
+        const record: { [key: string]: any } = {};
+
+        headers.forEach(({ key }) => {
+          record[key] = sourceColumns[key][index];
+        });
+
+        columns.push(record);
+      }
+
+      setHeaders(headers);
+      setColumns(columns);
+    }
+  }, [data.series, options.isRenderTableDataFromUrl, options.baseUrl]);
 
   return (
     <div
       className={cx(
-        styles.wrapper,
         css`
+          position: relative;
           width: ${width}px;
           height: ${height}px;
           overflow: hidden;
@@ -75,77 +95,24 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
         <Button onClick={() => setModalCreate(true)}>Create</Button>
       </div>
 
+      {/* table */}
       <div
         className={cx(css`
           height: ${height - 60}px;
           overflow: auto;
         `)}
       >
-        <table className={cx(styles.table)}>
-          <tr
-            className={cx(css`
-              background: rgb(34, 37, 43);
-            `)}
-          >
-            {headers.length > 0 &&
-              headers.map((header) => (
-                <th
-                  key={header}
-                  className={css`
-                    border: 1px solid rgba(204, 204, 220, 0.07);
-                    text-align: left;
-                    padding: 6px;
-                    color: #6e9fff;
-                  `}
-                >
-                  {header}
-                </th>
-              ))}
-          </tr>
-
-          {coloumns.length > 0 &&
-            coloumns.map((record, index1) => (
-              <tr
-                className={cx(
-                  css`
-                    &:hover {
-                      background-color: rgb(30, 33, 37);
-                      cursor: pointer;
-                    }
-                  `
-                )}
-                key={index1}
-                onClick={() => {
-                  const data: any = {};
-                  keys.forEach((key, idx) => {
-                    data[key] = record[idx];
-                  });
-
-                  setModalUpdate({
-                    ...modalUpdate,
-                    isOpen: true,
-                    data,
-                  });
-                }}
-              >
-                {headers.map((_, index2) => (
-                  <td
-                    key={`${index1}-${index2}`}
-                    className={cx(
-                      css`
-                        border: 1px solid rgba(204, 204, 220, 0.07);
-                        text-align: left;
-                        padding: 6px;
-                        font-weight: 600;
-                      `
-                    )}
-                  >
-                    {record[index2]}
-                  </td>
-                ))}
-              </tr>
-            ))}
-        </table>
+        <TableCustom
+          headers={headers}
+          columns={columns}
+          handleClickRow={(record: any) =>
+            setModalUpdate({
+              ...modalUpdate,
+              isOpen: true,
+              data: record,
+            })
+          }
+        />
       </div>
 
       {/* modals */}
@@ -160,36 +127,3 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
     </div>
   );
 };
-
-const getStyles = stylesFactory(() => {
-  return {
-    wrapper: css`
-      position: relative;
-    `,
-
-    table: css`
-      font-family: arial, sans-serif;
-      border-collapse: collapse;
-      width: 100%;
-    `,
-
-    cell: `
-      border: 1px solid #dddddd;
-      text-align: left;
-      padding: 8px;
-    `,
-
-    row: `
-      &:hover {
-        background-color: #ddd;
-        cursor: pointer;
-      }
-    `,
-
-    createBtn: `
-      display: flex;
-      justify-content: flex-end;
-      margin-bottom: 10px;
-    `,
-  };
-});

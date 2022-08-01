@@ -31,7 +31,7 @@ export default function CreateModal({ isOpen, baseUrl, onClose }: CreateModalPro
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
-    await create(formData);
+    await create(baseUrl, formData);
 
     onClose();
     const refreshBtn = document.querySelector(".toolbar-button[aria-label='Refresh dashboard']");

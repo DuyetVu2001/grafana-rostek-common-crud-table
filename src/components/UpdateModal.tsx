@@ -42,7 +42,7 @@ export default function UpdateModal({ isOpen, baseUrl, data = null, onClose }: U
     if (actualDelete) {
       const deleteAsync = async () => {
         try {
-          await deleteById(formData?.id);
+          await deleteById(baseUrl, formData?.id);
           onClose();
 
           const refreshBtn = document.querySelector(".toolbar-button[aria-label='Refresh dashboard']");
@@ -58,12 +58,12 @@ export default function UpdateModal({ isOpen, baseUrl, data = null, onClose }: U
 
       deleteAsync();
     }
-  }, [actualDelete, onClose, formData?.id]);
+  }, [actualDelete, onClose, formData?.id, baseUrl]);
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
-    await update(formData);
+    await update(baseUrl, formData);
 
     onClose();
     const refreshBtn = document.querySelector(".toolbar-button[aria-label='Refresh dashboard']");
