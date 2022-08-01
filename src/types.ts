@@ -1,6 +1,8 @@
 export interface SimpleOptions {
   baseUrl: string;
   isRenderTableDataFromUrl: boolean;
+  isPagination: boolean;
+  limitPerPage: number;
 }
 
 export type HeaderTypes = {

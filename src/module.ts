@@ -15,5 +15,20 @@ export const plugin = new PanelPlugin<SimpleOptions>(SimplePanel).setPanelOption
       description: 'Default: render data from data source',
 
       defaultValue: false,
+    })
+    .addBooleanSwitch({
+      path: 'isPagination',
+      name: 'Show pagination?',
+
+      defaultValue: true,
+    })
+    .addNumberInput({
+      path: 'limitPerPage',
+      name: 'Record per page',
+      defaultValue: 8,
+      settings: {
+        min: 6,
+      },
+      showIf: (options) => options.isPagination,
     });
 });

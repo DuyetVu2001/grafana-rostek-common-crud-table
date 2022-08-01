@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 
 import { PanelProps } from '@grafana/data';
-import { Button } from '@grafana/ui';
+import { Button, Pagination } from '@grafana/ui';
 import { ColumnTypes, HeaderTypes, SimpleOptions } from 'types';
 import { css, cx } from 'emotion';
 
@@ -15,6 +15,15 @@ interface Props extends PanelProps<SimpleOptions> {}
 export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) => {
   const [headers, setHeaders] = useState<HeaderTypes[] | []>([]);
   const [columns, setColumns] = useState<ColumnTypes[] | []>([]);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const limit = options.limitPerPage;
+  const numberOfPages = Math.ceil(columns.length / limit);
+
+  const columnsPagination = useMemo(
+    () => columns.slice((currentPage - 1) * limit, currentPage * limit),
+    [columns, currentPage, limit]
+  );
 
   const [modalCreate, setModalCreate] = useState(false);
   const [modalUpdate, setModalUpdate] = useState({
@@ -98,13 +107,13 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
       {/* table */}
       <div
         className={cx(css`
-          height: ${height - 60}px;
+          height: ${height - 86}px;
           overflow: auto;
         `)}
       >
         <TableCustom
           headers={headers}
-          columns={columns}
+          columns={options.isPagination ? columnsPagination : columns}
           handleClickRow={(record: any) =>
             setModalUpdate({
               ...modalUpdate,
@@ -113,6 +122,18 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
             })
           }
         />
+
+        {options.isPagination && (
+          <div
+            className={cx(css`
+              position: absolute;
+              bottom: 0;
+              right: 12px;
+            `)}
+          >
+            <Pagination currentPage={currentPage} numberOfPages={numberOfPages} onNavigate={setCurrentPage} />
+          </div>
+        )}
       </div>
 
       {/* modals */}
