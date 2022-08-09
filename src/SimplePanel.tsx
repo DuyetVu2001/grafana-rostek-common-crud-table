@@ -1,150 +1,17 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React from 'react';
 
 import { PanelProps } from '@grafana/data';
-import { Button, Pagination } from '@grafana/ui';
-import { ColumnTypes, HeaderTypes, SimpleOptions } from 'types';
-import { css, cx } from 'emotion';
+import { SimpleOptions } from 'types';
 
-import CreateModal from 'components/CreateModal';
-import UpdateModal from 'components/UpdateModal';
-import TableCustom from 'components/TableCustom';
-import { getAll, getHeaders } from 'api';
+import TableDataProvider from 'contexts/TableDataProvider';
+import { TablePanel } from 'containers/TablePanel';
 
 interface Props extends PanelProps<SimpleOptions> {}
 
-export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) => {
-  const [headers, setHeaders] = useState<HeaderTypes[] | []>([]);
-  const [columns, setColumns] = useState<ColumnTypes[] | []>([]);
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const limit = options.limitPerPage;
-  const numberOfPages = Math.ceil(columns.length / limit);
-
-  const columnsPagination = useMemo(
-    () => columns.slice((currentPage - 1) * limit, currentPage * limit),
-    [columns, currentPage, limit]
-  );
-
-  const [modalCreate, setModalCreate] = useState(false);
-  const [modalUpdate, setModalUpdate] = useState({
-    isOpen: false,
-    data: null as any,
-  });
-
-  useEffect(() => {
-    if (options.isRenderTableDataFromUrl && options.baseUrl) {
-      const fetchData = async () => {
-        const { data: columns } = await getAll(options.baseUrl);
-        const { data: headers } = await getHeaders(options.baseUrl);
-
-        setHeaders(headers.data || []);
-        setColumns(columns.data || []);
-      };
-
-      fetchData();
-      return;
-    }
-
-    if (data.series[0] && data.series[0].fields) {
-      const series1 = data.series[0];
-      const fields = series1.fields;
-      const numberOfRecords = series1.length;
-
-      // get headers
-      const headers =
-        fields.length > 0
-          ? fields.map((field) => ({
-              key: field.name,
-              title: field.config?.displayName || field.name,
-            }))
-          : [];
-
-      // get columns data
-      const sourceColumns: { [key: string]: any[] } = {};
-      fields.forEach((field) => {
-        sourceColumns[field.name] = field.values.toArray();
-      });
-
-      // convert "sourceColumns" to expected "columns" format
-      const columns = [];
-      for (let index = 0; index < numberOfRecords; index++) {
-        const record: { [key: string]: any } = {};
-
-        headers.forEach(({ key }) => {
-          record[key] = sourceColumns[key][index];
-        });
-
-        columns.push(record);
-      }
-
-      setHeaders(headers);
-      setColumns(columns);
-    }
-  }, [data.series, options.isRenderTableDataFromUrl, options.baseUrl]);
-
+export const SimplePanel: React.FC<Props> = (props) => {
   return (
-    <div
-      className={cx(
-        css`
-          position: relative;
-          width: ${width}px;
-          height: ${height}px;
-          overflow: hidden;
-        `
-      )}
-    >
-      {/* create button */}
-      <div
-        className={cx(css`
-          display: flex;
-          justify-content: flex-end;
-          margin-bottom: 10px;
-        `)}
-      >
-        <Button onClick={() => setModalCreate(true)}>Create</Button>
-      </div>
-
-      {/* table */}
-      <div
-        className={cx(css`
-          height: ${height - 86}px;
-          overflow: auto;
-        `)}
-      >
-        <TableCustom
-          headers={headers}
-          columns={options.isPagination ? columnsPagination : columns}
-          handleClickRow={(record: any) =>
-            setModalUpdate({
-              ...modalUpdate,
-              isOpen: true,
-              data: record,
-            })
-          }
-        />
-
-        {options.isPagination && (
-          <div
-            className={cx(css`
-              position: absolute;
-              bottom: 0;
-              right: 12px;
-            `)}
-          >
-            <Pagination currentPage={currentPage} numberOfPages={numberOfPages} onNavigate={setCurrentPage} />
-          </div>
-        )}
-      </div>
-
-      {/* modals */}
-      <CreateModal baseUrl={options.baseUrl} isOpen={modalCreate} onClose={() => setModalCreate(false)} />
-
-      <UpdateModal
-        baseUrl={options.baseUrl}
-        isOpen={modalUpdate.isOpen}
-        data={modalUpdate?.data}
-        onClose={() => setModalUpdate({ ...modalUpdate, isOpen: false, data: null })}
-      />
-    </div>
+    <TableDataProvider>
+      <TablePanel {...props} />
+    </TableDataProvider>
   );
 };

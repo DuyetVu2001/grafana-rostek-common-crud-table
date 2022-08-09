@@ -30,5 +30,19 @@ export const plugin = new PanelPlugin<SimpleOptions>(SimplePanel).setPanelOption
         min: 6,
       },
       showIf: (options) => options.isPagination,
+    })
+    .addBooleanSwitch({
+      path: 'showErrorBackground',
+      name: 'Show error background?',
+      description: 'Default: false',
+
+      defaultValue: false,
+    })
+    .addBooleanSwitch({
+      path: 'showForm',
+      name: 'Show form?',
+      description: 'Show form create, update?',
+
+      defaultValue: false,
     });
 });
