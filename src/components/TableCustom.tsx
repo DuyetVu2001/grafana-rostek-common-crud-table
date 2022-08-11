@@ -19,6 +19,22 @@ type Props = {
 export default function TableCustom({ headers = [], showErrorBackground = false, handleClickRow = () => {} }: Props) {
   const { filterColumns } = React.useContext(TableDataContext);
 
+  const renderRecords = (record: any, header: HeaderTypes) => {
+    const type = header?.type || '';
+
+    switch (type) {
+      case 'date':
+        return moment(record[header.key], 'X').format(header.format);
+
+      case 'select':
+        return header.data?.find((item: any) => item.id === record[header.key] || item.name === record[header.key])
+          ?.label;
+
+      default:
+        return record[header.key];
+    }
+  };
+
   return (
     <table
       className={cx(css`
@@ -37,7 +53,7 @@ export default function TableCustom({ headers = [], showErrorBackground = false,
       >
         {/* HEADER */}
         {headers.length > 0 &&
-          headers.map(({ title, filter = false, key, filterType }, index) => (
+          headers.map((header, index) => (
             <th
               key={index}
               className={css`
@@ -48,8 +64,10 @@ export default function TableCustom({ headers = [], showErrorBackground = false,
               `}
             >
               <HorizontalGroup align="center">
-                <span>{title}</span>
-                {filter && <FilterModal.RenderFilter id={key} type={filterType} />}
+                <span>{header.title}</span>
+                {header.filter && (
+                  <FilterModal.RenderFilter id={header.key} filterType={header.filterType} header={header} />
+                )}
               </HorizontalGroup>
             </th>
           ))}
@@ -73,7 +91,7 @@ export default function TableCustom({ headers = [], showErrorBackground = false,
               key={index1}
               onClick={() => handleClickRow(record)}
             >
-              {headers.map(({ key, condition, type, format }, index2) => (
+              {headers.map((header, index2) => (
                 <td
                   key={`${index1}-${index2}`}
                   className={cx(
@@ -85,7 +103,7 @@ export default function TableCustom({ headers = [], showErrorBackground = false,
                     `
                   )}
                 >
-                  {type === 'date' ? moment(record[key], 'X').format(format) : record[key]}
+                  {renderRecords(record, header)}
                 </td>
               ))}
             </tr>

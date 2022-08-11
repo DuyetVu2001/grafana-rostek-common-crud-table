@@ -7,13 +7,21 @@ export interface SimpleOptions {
   limitPerPage: number;
 }
 
-export type FilterType = null | 'time-from-to';
+export type FilterType = 'time-from-to';
+
+export type HeaderSelectDataType = {
+  label: string;
+  id: any;
+};
+
+export type HeaderTypeTypes = 'date' | 'select';
 
 export type HeaderTypes = {
   key: string;
   title: string;
 
-  type?: 'date';
+  data?: HeaderSelectDataType[];
+  type?: HeaderTypeTypes;
   format?: string;
   condition?: [string, string, string];
   filter?: boolean;

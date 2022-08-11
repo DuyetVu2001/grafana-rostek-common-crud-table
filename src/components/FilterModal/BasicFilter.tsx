@@ -4,12 +4,13 @@ import { css, cx } from 'emotion';
 import React from 'react';
 
 type SelectDataType = {
-  name: any;
+  label: any;
+  value: any;
   isChecked: boolean;
 };
 
 type Props = {
-  selectData: any[];
+  selectData: Array<{ label: any; value: any }>;
   columnKey: any;
 
   onClose: () => void;
@@ -21,25 +22,31 @@ export default function BasicFilter({ selectData = [], columnKey = '', onClose }
   const [data, setData] = React.useState<SelectDataType[]>([]);
   const [searchValue, setSearchValue] = React.useState<any>('');
 
-  React.useEffect(() => {
+  const filterSelectData = React.useCallback(() => {
     if (selectData.length > 0) {
       const hashMap = new Map();
-      const newData = selectData
+      const filterData = selectData
         .map((item) => {
-          if (!hashMap.has(item)) {
-            hashMap.set(item, true);
-            return { name: item, isChecked: false };
+          if (!hashMap.has(item.value)) {
+            hashMap.set(item.value, true);
+            return { ...item, isChecked: false };
           }
-          return { name: null, isChecked: false };
+          return { ...item, value: null, isChecked: false };
         })
-        .filter((item) => item.name);
+        .filter((item) => typeof item.value === 'boolean' || item.value);
 
-      setData(newData);
+      return filterData;
     }
+
+    return [];
   }, [selectData]);
 
+  React.useEffect(() => {
+    setData(filterSelectData());
+  }, [filterSelectData]);
+
   const handleSubmit = () => {
-    const filterData = data.filter((item) => item.isChecked).map((item) => item.name);
+    const filterData = data.filter((item) => item.isChecked).map((item) => item.value);
     const filterDataHashMap: any = {};
 
     for (const key of filterData) {
@@ -47,7 +54,9 @@ export default function BasicFilter({ selectData = [], columnKey = '', onClose }
     }
 
     if (filterData.length > 0) {
-      let filterColumns = columns.filter((record) => filterDataHashMap[record[columnKey]]);
+      let filterColumns = columns.filter(
+        (record) => typeof filterDataHashMap[record[columnKey]] === 'boolean' || filterDataHashMap[record[columnKey]]
+      );
 
       setFilterColumns(filterColumns);
     }
@@ -60,31 +69,11 @@ export default function BasicFilter({ selectData = [], columnKey = '', onClose }
     setSearchValue(value);
 
     if (value === '') {
-      const hashMap = new Map();
-      const newData = selectData
-        .map((item) => {
-          if (!hashMap.has(item)) {
-            hashMap.set(item, true);
-            return { name: item, isChecked: false };
-          }
-          return { name: null, isChecked: false };
-        })
-        .filter((item) => item.name);
-
-      setData(newData);
+      setData(filterSelectData());
     } else {
-      const hashMap = new Map();
-      const newData = selectData
-        .map((item) => {
-          if (!hashMap.has(item)) {
-            hashMap.set(item, true);
-            return { name: item, isChecked: false };
-          }
-          return { name: null, isChecked: false };
-        })
-        .filter((item) => item.name && item.name.toLowerCase().includes(value.toLowerCase()));
+      const searchData = filterSelectData().filter((item) => item.value.toLowerCase().includes(value.toLowerCase()));
 
-      setData(newData);
+      setData(searchData);
     }
   };
 
@@ -114,7 +103,7 @@ export default function BasicFilter({ selectData = [], columnKey = '', onClose }
                     return [...prevState];
                   })
                 }
-                label={item.name}
+                label={item.label}
                 value={item.isChecked}
               />
             ))}

@@ -65,6 +65,7 @@ export const RenderForm = ({ listInputs, formData = {}, setFormData }: Props) =>
               );
 
             case 'select':
+              // set default value is first option of select
               if (formData[input.name] === undefined || formData[input.name] === null) {
                 setFormData({
                   ...formData,
@@ -86,7 +87,7 @@ export const RenderForm = ({ listInputs, formData = {}, setFormData }: Props) =>
                       value: item.id ?? item.name,
                     }))}
                     allowCustomValue
-                    value={formData[input.name] || input?.data[0] || ''}
+                    value={formData[input.name] ?? input?.data[0] ?? ''}
                     onChange={(value) => handleChange(value.value, input.name)}
                   />
                 </Field>
