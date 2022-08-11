@@ -44,5 +44,12 @@ export const plugin = new PanelPlugin<SimpleOptions>(SimplePanel).setPanelOption
       description: 'Show form create, update?',
 
       defaultValue: false,
+    })
+    .addBooleanSwitch({
+      path: 'showReportButton',
+      name: 'Show report button?',
+      description: 'Show report button?',
+
+      defaultValue: false,
     });
 });

@@ -3,6 +3,7 @@ export interface SimpleOptions {
   isRenderTableDataFromUrl: boolean;
   showErrorBackground: boolean;
   showForm: boolean;
+  showReportButton: boolean;
   isPagination: boolean;
   limitPerPage: number;
 }
