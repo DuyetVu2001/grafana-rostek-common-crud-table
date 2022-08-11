@@ -1,23 +1,46 @@
-import { Button, Checkbox, ClickOutsideWrapper, HorizontalGroup, useTheme2, VerticalGroup } from '@grafana/ui';
-import { SELECT_7_DAY_LATER, SELECT_7_DAY_LATER_TYPE } from 'const';
-import { css, cx } from 'emotion';
 import React from 'react';
+
+import { Button, Checkbox, ClickOutsideWrapper, HorizontalGroup, useTheme2, VerticalGroup } from '@grafana/ui';
+import { SELECT_TYPE } from 'const';
+import { css, cx } from 'emotion';
+
+/*eslint no-restricted-imports: ["error", "fs"]*/
+import moment from 'moment';
 
 export default function DownloadButton({}) {
   const theme = useTheme2();
 
   const [showPopup, setShowPopup] = React.useState(false);
   const [isCheckedAll, setIsCheckedAll] = React.useState(false);
-  const [selectData, setSelectData] = React.useState<SELECT_7_DAY_LATER_TYPE[]>(
-    JSON.parse(JSON.stringify(SELECT_7_DAY_LATER))
-  );
+  const [selectData, setSelectData] = React.useState<SELECT_TYPE[]>([]);
 
   const ClickOutsideWrapperAnyType: any = ClickOutsideWrapper;
+
+  // set select the seven latest days
+  React.useEffect(() => {
+    const selects = [0, 1, 2, 3, 4, 5, 6].map((item) => {
+      const date = moment().subtract(item, 'days');
+      const value = date.format('DD/MM/YYYY');
+      let name = date.format('DD/MM/YYYY');
+
+      if (item === 0) {
+        name = 'Hôm nay';
+      }
+
+      return { value, name, isChecked: false };
+    });
+
+    setSelectData(selects);
+  }, []);
 
   function handleSubmit() {
     const submitData = selectData.filter((item) => item.isChecked).map((item) => item.value);
 
-    console.log(submitData);
+    const body = {
+      dow: submitData,
+    };
+
+    console.log(body);
   }
 
   function handleCheckAll() {
