@@ -39,6 +39,7 @@ export default function AutoReportButton({}) {
     }
 
     const body = {
+      originTime: pickTime,
       hour,
       minute,
       dow: days,

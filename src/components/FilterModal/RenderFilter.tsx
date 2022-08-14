@@ -17,6 +17,13 @@ export default function RenderFilter({ header, filterType, id = '' }: Props) {
     case 'time-from-to':
       return (
         <CustomButton.FilterButton
+          renderFilterModal={(onClose) => <FilterModal.TimFromToFilter onClose={onClose} columnKey={id} />}
+        />
+      );
+
+    case 'number-from-to':
+      return (
+        <CustomButton.FilterButton
           renderFilterModal={(onClose) => <FilterModal.NumberFromToFilter onClose={onClose} columnKey={id} />}
         />
       );

@@ -1,11 +1,13 @@
 import BasicModal from './BasicFilter';
 import RenderFilter from './RenderFilter';
+import TimFromToFilter from './TimFromToFilter';
 import NumberFromToFilter from './NumberFromToFilter';
 
 const FilterModal = {
   BasicModal,
-  NumberFromToFilter,
   RenderFilter,
+  TimFromToFilter,
+  NumberFromToFilter,
 };
 
 export default FilterModal;

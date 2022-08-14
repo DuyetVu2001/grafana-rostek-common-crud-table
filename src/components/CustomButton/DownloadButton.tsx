@@ -6,6 +6,8 @@ import { css, cx } from 'emotion';
 
 /*eslint no-restricted-imports: ["error", "fs"]*/
 import moment from 'moment';
+import axios from 'axios';
+import { saveFileAs } from 'utils/fs-helper';
 
 export default function DownloadButton({}) {
   const theme = useTheme2();
@@ -33,14 +35,20 @@ export default function DownloadButton({}) {
     setSelectData(selects);
   }, []);
 
-  function handleSubmit() {
-    const submitData = selectData.filter((item) => item.isChecked).map((item) => item.value);
+  async function handleSubmit() {
+    const randomNumber = Math.floor(Math.random() * 9999);
+    const response = await axios.get('http://localhost:5000/download/' + randomNumber);
+    const content = response.data;
 
-    const body = {
-      dow: submitData,
-    };
+    await saveFileAs(content);
 
-    console.log(body);
+    // const submitData = selectData.filter((item) => item.isChecked).map((item) => item.value);
+
+    // const body = {
+    //   dow: submitData,
+    // };
+
+    // console.log(body);
   }
 
   function handleCheckAll() {

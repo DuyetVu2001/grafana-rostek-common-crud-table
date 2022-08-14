@@ -4,7 +4,7 @@ import { css, cx } from 'emotion';
 import { TableDataContext } from 'contexts/TableDataProvider';
 
 /*eslint no-restricted-imports: ["error", "fs"]*/
-import moment from 'moment';
+// import moment from 'moment';
 
 type Props = {
   columnKey: any;
@@ -19,13 +19,14 @@ export default function NumberFromToFilter({ columnKey = '', onClose }: Props) {
   const [to, setTo] = React.useState<any>();
 
   function handleSubmit() {
-    if (from && to) {
-      let filterColumns = columns.filter((record) => {
-        const value = record[columnKey];
-        return moment(value).isBetween(from, to, null, '[]');
-      });
-
-      setFilterColumns(filterColumns);
+    if (!from && !to) {
+      setFilterColumns(columns);
+    } else if (from && !to) {
+      setFilterColumns(columns.filter((record) => +record[columnKey] >= +from));
+    } else if (!from && to) {
+      setFilterColumns(columns.filter((record) => +record[columnKey] <= +to));
+    } else {
+      setFilterColumns(columns.filter((record) => +record[columnKey] >= +from && +record[columnKey] <= +to));
     }
 
     onClose();
@@ -41,11 +42,11 @@ export default function NumberFromToFilter({ columnKey = '', onClose }: Props) {
         `)}
       >
         <Field label={'From'} style={{ flex: 1, padding: '0 2px' }}>
-          <Input type="number" min={0} max={24} value={from} onChange={(e: any) => setFrom(e.target.value)} />
+          <Input type="number" value={from} onChange={(e: any) => setFrom(e.target.value)} />
         </Field>
 
         <Field label={'To'} style={{ flex: 1, padding: '0 2px' }}>
-          <Input type="number" min={0} max={24} value={to} onChange={(e: any) => setTo(e.target.value)} />
+          <Input type="number" value={to} onChange={(e: any) => setTo(e.target.value)} />
         </Field>
       </div>
 

@@ -8,7 +8,7 @@ export interface SimpleOptions {
   limitPerPage: number;
 }
 
-export type FilterType = 'time-from-to';
+export type FilterType = 'time-from-to' | 'number-from-to';
 
 export type HeaderSelectDataType = {
   label: string;
