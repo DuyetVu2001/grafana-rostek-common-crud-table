@@ -18,6 +18,7 @@ type Props = {
 
 export default function TableCustom({ headers = [], showErrorBackground = false, handleClickRow = () => {} }: Props) {
   const { filterColumns } = React.useContext(TableDataContext);
+  const [showFilter, setShowFilter] = React.useState<null | number>(null);
 
   const renderRecords = (record: any, header: HeaderTypes) => {
     const type = header?.type || '';
@@ -66,7 +67,15 @@ export default function TableCustom({ headers = [], showErrorBackground = false,
               <HorizontalGroup align="center">
                 <span>{header.title}</span>
                 {header.filter && (
-                  <FilterModal.RenderFilter id={header.key} filterType={header.filterType} header={header} />
+                  <FilterModal.RenderFilter
+                    currentFilter={showFilter}
+                    openFilter={() => setShowFilter(index === showFilter ? null : index)}
+                    closeFilter={() => setShowFilter(null)}
+                    showFilter={showFilter === index}
+                    id={header.key}
+                    filterType={header.filterType}
+                    header={header}
+                  />
                 )}
               </HorizontalGroup>
             </th>
@@ -82,10 +91,10 @@ export default function TableCustom({ headers = [], showErrorBackground = false,
                 css`
                   &:hover {
                     background-color: rgb(30, 33, 37);
-                    ${showErrorBackground && record['error_step'].toString() !== '0' && 'background-color: #D21123;'}
+                    ${showErrorBackground && record['error_step_text'] && 'background-color: #D21123;'}
                     cursor: pointer;
                   }
-                  ${showErrorBackground && record['error_step'].toString() !== '0' && 'background-color: #D21123;'}
+                  ${showErrorBackground && record['error_step_text'] && 'background-color: #D21123;'}
                 `
               )}
               key={index1}

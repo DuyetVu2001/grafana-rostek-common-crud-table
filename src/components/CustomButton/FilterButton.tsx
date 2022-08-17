@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import {
   // ClickOutsideWrapper,
@@ -8,13 +8,14 @@ import {
 import { css, cx } from 'emotion';
 
 type Props = {
-  renderFilterModal: (onClose: () => void) => JSX.Element;
+  showFilter: boolean;
+
+  openFilter: () => void;
+  renderFilterModal: () => JSX.Element;
 };
 
-export default function FilterButton({ renderFilterModal }: Props) {
+export default function FilterButton({ showFilter, renderFilterModal, openFilter }: Props) {
   const theme = useTheme2();
-
-  const [isOpen, setIsOpen] = useState(false);
 
   // const ClickOutsideWrapperAnyType: any = ClickOutsideWrapper;
 
@@ -30,10 +31,10 @@ export default function FilterButton({ renderFilterModal }: Props) {
           display: flex;
         `)}
       >
-        <IconButton name="filter" onClick={() => setIsOpen(!isOpen)} />
+        <IconButton name="filter" onClick={() => openFilter()} />
       </div>
 
-      {isOpen && (
+      {showFilter && (
         <div
           className={cx(
             css`
@@ -53,7 +54,7 @@ export default function FilterButton({ renderFilterModal }: Props) {
             `
           )}
         >
-          {renderFilterModal(() => setIsOpen(false))}
+          {renderFilterModal()}
         </div>
       )}
       {/* </ClickOutsideWrapperAnyType> */}

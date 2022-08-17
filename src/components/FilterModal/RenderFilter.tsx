@@ -8,23 +8,33 @@ type Props = {
   filterType?: FilterType;
   header?: HeaderTypes;
   id: any;
+
+  showFilter: boolean;
+  currentFilter: null | number;
+
+  openFilter: () => void;
+  closeFilter: () => void;
 };
 
-export default function RenderFilter({ header, filterType, id = '' }: Props) {
+export default function RenderFilter({ header, showFilter, filterType, id = '', openFilter, closeFilter }: Props) {
   const { columns } = React.useContext(TableDataContext);
 
   switch (filterType) {
     case 'time-from-to':
       return (
         <CustomButton.FilterButton
-          renderFilterModal={(onClose) => <FilterModal.TimFromToFilter onClose={onClose} columnKey={id} />}
+          showFilter={showFilter}
+          openFilter={openFilter}
+          renderFilterModal={() => <FilterModal.TimFromToFilter onClose={closeFilter} columnKey={id} />}
         />
       );
 
     case 'number-from-to':
       return (
         <CustomButton.FilterButton
-          renderFilterModal={(onClose) => <FilterModal.NumberFromToFilter onClose={onClose} columnKey={id} />}
+          showFilter={showFilter}
+          openFilter={openFilter}
+          renderFilterModal={() => <FilterModal.NumberFromToFilter onClose={closeFilter} columnKey={id} />}
         />
       );
 
@@ -43,8 +53,10 @@ export default function RenderFilter({ header, filterType, id = '' }: Props) {
 
       return (
         <CustomButton.FilterButton
-          renderFilterModal={(onClose) => (
-            <FilterModal.BasicModal onClose={onClose} selectData={selectData} columnKey={id} />
+          showFilter={showFilter}
+          openFilter={openFilter}
+          renderFilterModal={() => (
+            <FilterModal.BasicModal onClose={closeFilter} selectData={selectData} columnKey={id} />
           )}
         />
       );
