@@ -3,9 +3,6 @@ import { Button, Field, HorizontalGroup, Input } from '@grafana/ui';
 import { css, cx } from 'emotion';
 import { TableDataContext } from 'contexts/TableDataProvider';
 
-/*eslint no-restricted-imports: ["error", "fs"]*/
-// import moment from 'moment';
-
 type Props = {
   columnKey: any;
 
@@ -13,21 +10,25 @@ type Props = {
 };
 
 export default function NumberFromToFilter({ columnKey = '', onClose }: Props) {
-  const { columns, setFilterColumns } = React.useContext(TableDataContext);
+  const { query, setQuery } = React.useContext(TableDataContext);
 
   const [from, setFrom] = React.useState<any>();
   const [to, setTo] = React.useState<any>();
 
-  function handleSubmit() {
-    if (!from && !to) {
-      setFilterColumns(columns);
-    } else if (from && !to) {
-      setFilterColumns(columns.filter((record) => +record[columnKey] >= +from));
-    } else if (!from && to) {
-      setFilterColumns(columns.filter((record) => +record[columnKey] <= +to));
-    } else {
-      setFilterColumns(columns.filter((record) => +record[columnKey] >= +from && +record[columnKey] <= +to));
+  React.useEffect(() => {
+    if (columnKey && query[columnKey]) {
+      setFrom(query[columnKey].from || null);
+      setTo(query[columnKey].to || null);
     }
+  }, [columnKey, query, setQuery]);
+
+  console.log(query);
+
+  function handleSubmit() {
+    setQuery((prevState) => ({
+      ...prevState,
+      [columnKey]: { type: 'number-from-to', from: from || null, to: to || null },
+    }));
 
     onClose();
   }
@@ -42,11 +43,11 @@ export default function NumberFromToFilter({ columnKey = '', onClose }: Props) {
         `)}
       >
         <Field label={'From'} style={{ flex: 1, padding: '0 2px' }}>
-          <Input type="number" value={from} onChange={(e: any) => setFrom(e.target.value)} />
+          <Input type="number" value={from || ''} onChange={(e: any) => setFrom(e.target.value)} />
         </Field>
 
         <Field label={'To'} style={{ flex: 1, padding: '0 2px' }}>
-          <Input type="number" value={to} onChange={(e: any) => setTo(e.target.value)} />
+          <Input type="number" value={to || ''} onChange={(e: any) => setTo(e.target.value)} />
         </Field>
       </div>
 

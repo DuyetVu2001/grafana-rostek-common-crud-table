@@ -12,3 +12,8 @@ export const rotate90Degree2DArray = (arr: [any][any]) => {
 
   return newArr;
 };
+
+export function calculateHHmmToMinute(time: string) {
+  const [hours, minutes] = time.split(':');
+  return +minutes + +hours * 60;
+}

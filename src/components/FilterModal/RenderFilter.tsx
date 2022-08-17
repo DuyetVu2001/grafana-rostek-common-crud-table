@@ -7,7 +7,7 @@ import FilterModal from '.';
 type Props = {
   filterType?: FilterType;
   header?: HeaderTypes;
-  id: any;
+  columnKey: any;
 
   showFilter: boolean;
   currentFilter: null | number;
@@ -16,13 +16,21 @@ type Props = {
   closeFilter: () => void;
 };
 
-export default function RenderFilter({ header, showFilter, filterType, id = '', openFilter, closeFilter }: Props) {
-  const { columns } = React.useContext(TableDataContext);
+export default function RenderFilter({
+  header,
+  showFilter,
+  filterType,
+  columnKey: id = '',
+  openFilter,
+  closeFilter,
+}: Props) {
+  const { filterColumns } = React.useContext(TableDataContext);
 
   switch (filterType) {
     case 'time-from-to':
       return (
         <CustomButton.FilterButton
+          columnKey={id}
           showFilter={showFilter}
           openFilter={openFilter}
           renderFilterModal={() => <FilterModal.TimFromToFilter onClose={closeFilter} columnKey={id} />}
@@ -32,6 +40,7 @@ export default function RenderFilter({ header, showFilter, filterType, id = '', 
     case 'number-from-to':
       return (
         <CustomButton.FilterButton
+          columnKey={id}
           showFilter={showFilter}
           openFilter={openFilter}
           renderFilterModal={() => <FilterModal.NumberFromToFilter onClose={closeFilter} columnKey={id} />}
@@ -39,7 +48,7 @@ export default function RenderFilter({ header, showFilter, filterType, id = '', 
       );
 
     default:
-      let selectData = columns.map((record) => ({ label: record[id], value: record[id] }));
+      let selectData = filterColumns.map((record) => ({ label: record[id], value: record[id] }));
 
       if (header?.type === 'select') {
         const headerDataHashMap: any = {};
@@ -53,6 +62,7 @@ export default function RenderFilter({ header, showFilter, filterType, id = '', 
 
       return (
         <CustomButton.FilterButton
+          columnKey={id}
           showFilter={showFilter}
           openFilter={openFilter}
           renderFilterModal={() => (

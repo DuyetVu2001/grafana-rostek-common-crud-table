@@ -1,23 +1,28 @@
 import React from 'react';
 
 import { css, cx } from 'emotion';
-import { HeaderTypes } from 'types';
+import { ColumnTypes, HeaderTypes } from 'types';
 
 /*eslint no-restricted-imports: ["error", "fs"]*/
 import moment from 'moment';
 import { HorizontalGroup } from '@grafana/ui';
 import FilterModal from './FilterModal';
-import { TableDataContext } from 'contexts/TableDataProvider';
 
 type Props = {
   headers: HeaderTypes[] | [];
   showErrorBackground?: boolean;
 
+  columns: ColumnTypes[];
+
   handleClickRow?: (row: any) => void;
 };
 
-export default function TableCustom({ headers = [], showErrorBackground = false, handleClickRow = () => {} }: Props) {
-  const { filterColumns } = React.useContext(TableDataContext);
+export default function TableCustom({
+  headers = [],
+  columns = [],
+  showErrorBackground = false,
+  handleClickRow = () => {},
+}: Props) {
   const [showFilter, setShowFilter] = React.useState<null | number>(null);
 
   const renderRecords = (record: any, header: HeaderTypes) => {
@@ -72,7 +77,7 @@ export default function TableCustom({ headers = [], showErrorBackground = false,
                     openFilter={() => setShowFilter(index === showFilter ? null : index)}
                     closeFilter={() => setShowFilter(null)}
                     showFilter={showFilter === index}
-                    id={header.key}
+                    columnKey={header.key}
                     filterType={header.filterType}
                     header={header}
                   />
@@ -84,8 +89,8 @@ export default function TableCustom({ headers = [], showErrorBackground = false,
 
       {/* ROWS */}
       <tbody>
-        {filterColumns.length > 0 &&
-          filterColumns.map((record, index1) => (
+        {columns.length > 0 &&
+          columns.map((record, index1) => (
             <tr
               className={cx(
                 css`

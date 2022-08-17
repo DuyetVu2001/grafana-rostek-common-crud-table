@@ -51,5 +51,12 @@ export const plugin = new PanelPlugin<SimpleOptions>(SimplePanel).setPanelOption
       description: 'Show report button?',
 
       defaultValue: false,
+    })
+    .addBooleanSwitch({
+      path: 'isServerFilter',
+      name: 'Filter in server',
+      description: 'Filter with api or client? (default: client)',
+
+      defaultValue: false,
     });
 });

@@ -115,22 +115,23 @@ export default function AutoReportButton({}) {
             >
               <VerticalGroup>
                 <Checkbox onChange={handleCheckAll} label="Check all" value={isCheckedAll} />
-                {selectData.map((item, index) => (
-                  <Checkbox
-                    key={index}
-                    onChange={() =>
-                      setSelectData((prevState) => {
-                        prevState[index].isChecked = !prevState[index].isChecked;
+                {selectData.length > 0 &&
+                  selectData.map((item, index) => (
+                    <Checkbox
+                      key={index}
+                      onChange={() =>
+                        setSelectData((prevState) => {
+                          prevState[index].isChecked = !prevState[index].isChecked;
 
-                        setIsCheckedAll(false);
+                          setIsCheckedAll(false);
 
-                        return [...prevState];
-                      })
-                    }
-                    label={item.name}
-                    value={item.isChecked}
-                  />
-                ))}
+                          return [...prevState];
+                        })
+                      }
+                      label={item.name}
+                      value={item.isChecked}
+                    />
+                  ))}
               </VerticalGroup>
             </div>
           )}

@@ -6,9 +6,10 @@ export interface SimpleOptions {
   showReportButton: boolean;
   isPagination: boolean;
   limitPerPage: number;
+  isServerFilter: boolean;
 }
 
-export type FilterType = 'time-from-to' | 'number-from-to';
+export type FilterType = 'time-from-to' | 'number-from-to' | 'select';
 
 export type HeaderSelectDataType = {
   label: string;
@@ -31,4 +32,14 @@ export type HeaderTypes = {
 
 export type ColumnTypes = {
   [key: string]: any;
+};
+
+export type QueryType = {
+  [key: string]: {
+    type: FilterType;
+    list?: Array<{ label: any; value: any; isChecked: boolean }>;
+    value?: string | number;
+    from?: string | number;
+    to?: string | number;
+  };
 };

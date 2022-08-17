@@ -17,10 +17,11 @@ type Props = {
 };
 
 export default function BasicFilter({ selectData = [], columnKey = '', onClose }: Props) {
-  const { columns, setFilterColumns } = React.useContext(TableDataContext);
+  const { query, setQuery } = React.useContext(TableDataContext);
 
   const [data, setData] = React.useState<SelectDataType[]>([]);
   const [searchValue, setSearchValue] = React.useState<any>('');
+  const [isCheckedAll, setIsCheckedAll] = React.useState(false);
 
   const filterSelectData = React.useCallback(() => {
     if (selectData.length > 0) {
@@ -42,25 +43,21 @@ export default function BasicFilter({ selectData = [], columnKey = '', onClose }
   }, [selectData]);
 
   React.useEffect(() => {
-    setData(filterSelectData());
-  }, [filterSelectData]);
+    let isSelectedAnyValue = false;
+    query?.[columnKey]?.list?.forEach((item: any) => item.isChecked && (isSelectedAnyValue = true));
+
+    // check if not select any value and filterData changed => re-calculate options data
+    const isReCalculate = query?.[columnKey]?.list?.length !== filterSelectData()?.length && !isSelectedAnyValue;
+
+    if ((columnKey && !query[columnKey]) || isReCalculate) {
+      setQuery((prevState) => ({ ...prevState, [columnKey]: { type: 'select', list: filterSelectData() } }));
+    } else if (columnKey && query[columnKey]) {
+      setData(query[columnKey]?.list?.map((item: any) => ({ ...item })) || []);
+    }
+  }, [filterSelectData, columnKey, query, setQuery]);
 
   const handleSubmit = () => {
-    const filterData = data.filter((item) => item.isChecked).map((item) => item.value);
-    const filterDataHashMap: any = {};
-
-    for (const key of filterData) {
-      filterDataHashMap[key] = key;
-    }
-
-    if (filterData.length > 0) {
-      let filterColumns = columns.filter(
-        (record) => typeof filterDataHashMap[record[columnKey]] === 'boolean' || filterDataHashMap[record[columnKey]]
-      );
-
-      setFilterColumns(filterColumns);
-    }
-
+    setQuery((prevState) => ({ ...prevState, [columnKey]: { ...query[columnKey], list: data } }));
     onClose();
   };
 
@@ -77,6 +74,17 @@ export default function BasicFilter({ selectData = [], columnKey = '', onClose }
     }
   };
 
+  function handleCheckAll() {
+    const updateCheckAll = !isCheckedAll;
+    setIsCheckedAll(updateCheckAll);
+
+    if (updateCheckAll) {
+      setData((prevState) => prevState.map((item) => ({ ...item, isChecked: true })));
+    } else {
+      setData((prevState) => prevState.map((item) => ({ ...item, isChecked: false })));
+    }
+  }
+
   return (
     <>
       {/* body */}
@@ -92,6 +100,8 @@ export default function BasicFilter({ selectData = [], columnKey = '', onClose }
         `)}
       >
         <VerticalGroup>
+          <Checkbox onChange={handleCheckAll} label="Check all" value={isCheckedAll} />
+
           {data.length > 0 &&
             data.map((item, index) => (
               <Checkbox
@@ -99,6 +109,8 @@ export default function BasicFilter({ selectData = [], columnKey = '', onClose }
                 onChange={() =>
                   setData((prevState) => {
                     prevState[index].isChecked = !prevState[index].isChecked;
+
+                    setIsCheckedAll(false);
 
                     return [...prevState];
                   })

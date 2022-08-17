@@ -8,20 +8,26 @@ import { css, cx } from 'emotion';
 import CreateModal from 'components/CreateModal';
 import UpdateModal from 'components/UpdateModal';
 import TableCustom from 'components/TableCustom';
-import { getAll, getHeaders } from 'api';
 import { TableDataContext } from 'contexts/TableDataProvider';
 import CustomButton from 'components/CustomButton';
+import { getHeaders } from 'api';
 
 interface Props extends PanelProps<SimpleOptions> {}
 
 export const TablePanel: React.FC<Props> = ({ options, data, width, height }) => {
+  const {
+    setColumns,
+    setFilterColumns,
+    currentPage,
+    setCurrentPage,
+    totalPage,
+    setPanelOptions,
+    setReload,
+    paginationColumns,
+    filterColumns,
+  } = useContext(TableDataContext);
+
   const [headers, setHeaders] = useState<HeaderTypes[] | []>([]);
-
-  const { columns, setColumns, setFilterColumns } = useContext(TableDataContext);
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const limit = options.limitPerPage;
-  const numberOfPages = Math.ceil(columns.length / limit);
 
   const [modalCreate, setModalCreate] = useState(false);
   const [modalUpdate, setModalUpdate] = useState({
@@ -30,18 +36,16 @@ export const TablePanel: React.FC<Props> = ({ options, data, width, height }) =>
   });
 
   useEffect(() => {
-    setFilterColumns(columns.slice((currentPage - 1) * limit, currentPage * limit));
-  }, [columns, currentPage, limit, setFilterColumns]);
+    setPanelOptions(options);
+  }, [options, setPanelOptions]);
 
   useEffect(() => {
+    setReload(data.series);
+
     if (options.isRenderTableDataFromUrl && options.baseUrl) {
       const fetchData = async () => {
-        const { data: columns } = await getAll(options.baseUrl);
         const { data: headers } = await getHeaders(options.baseUrl);
-
         setHeaders(headers.data || []);
-        setColumns(columns.data || []);
-        setFilterColumns(columns.data || []);
       };
 
       fetchData();
@@ -83,7 +87,7 @@ export const TablePanel: React.FC<Props> = ({ options, data, width, height }) =>
       setHeaders(headers);
       setColumns(columns);
     }
-  }, [data.series, options.isRenderTableDataFromUrl, options.baseUrl, setColumns, setFilterColumns]);
+  }, [data.series, options.isRenderTableDataFromUrl, options.baseUrl, setColumns, setFilterColumns, setReload]);
 
   let tableHeight = height - 56;
   if (options.isPagination) {
@@ -130,6 +134,7 @@ export const TablePanel: React.FC<Props> = ({ options, data, width, height }) =>
       >
         <TableCustom
           headers={headers}
+          columns={options.isPagination ? paginationColumns : filterColumns}
           showErrorBackground={options.showErrorBackground}
           handleClickRow={(record: any) =>
             setModalUpdate({
@@ -148,7 +153,7 @@ export const TablePanel: React.FC<Props> = ({ options, data, width, height }) =>
               right: 12px;
             `)}
           >
-            <Pagination currentPage={currentPage} numberOfPages={numberOfPages} onNavigate={setCurrentPage} />
+            <Pagination currentPage={currentPage} numberOfPages={totalPage} onNavigate={setCurrentPage} />
           </div>
         )}
       </div>

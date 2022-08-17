@@ -6,16 +6,45 @@ import {
   useTheme2,
 } from '@grafana/ui';
 import { css, cx } from 'emotion';
+import { TableDataContext } from 'contexts/TableDataProvider';
 
 type Props = {
   showFilter: boolean;
+  columnKey: any;
 
   openFilter: () => void;
   renderFilterModal: () => JSX.Element;
 };
 
-export default function FilterButton({ showFilter, renderFilterModal, openFilter }: Props) {
+export default function FilterButton({ showFilter, columnKey, renderFilterModal, openFilter }: Props) {
   const theme = useTheme2();
+  const { query } = React.useContext(TableDataContext);
+
+  const [isFilterActive, setIsFilterActive] = React.useState(false);
+
+  React.useEffect(() => {
+    if (columnKey && query[columnKey]) {
+      let isActive = false;
+
+      // check if is an array
+      if (query[columnKey].type === 'select') {
+        query[columnKey].list?.forEach((item: any) => {
+          if (item.isChecked) {
+            isActive = true;
+          }
+        });
+      }
+      // check with not array like number or string value
+      else if (
+        query[columnKey].type !== 'select' &&
+        (query[columnKey].value || query[columnKey].from || query[columnKey].to)
+      ) {
+        isActive = true;
+      }
+
+      setIsFilterActive(isActive);
+    }
+  }, [query, columnKey]);
 
   // const ClickOutsideWrapperAnyType: any = ClickOutsideWrapper;
 
@@ -31,7 +60,11 @@ export default function FilterButton({ showFilter, renderFilterModal, openFilter
           display: flex;
         `)}
       >
-        <IconButton name="filter" onClick={() => openFilter()} />
+        <IconButton
+          name="filter"
+          {...(isFilterActive ? { variant: 'primary' } : { variant: 'secondary' })}
+          onClick={() => openFilter()}
+        />
       </div>
 
       {showFilter && (
