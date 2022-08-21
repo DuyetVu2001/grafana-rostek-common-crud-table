@@ -51,8 +51,8 @@ export default function UpdateModal({ isOpen, baseUrl, data = null, onClose }: U
             refreshBtn.click();
           }
           setActualDelete(false);
-        } catch (error) {
-          console.error(error);
+        } catch (error: any) {
+          alert(error.response?.data?.message || error.message);
         }
       };
 
@@ -61,15 +61,19 @@ export default function UpdateModal({ isOpen, baseUrl, data = null, onClose }: U
   }, [actualDelete, onClose, formData?.id, baseUrl]);
 
   const handleSubmit = async (e: any) => {
-    e.preventDefault();
+    try {
+      e.preventDefault();
 
-    await update(baseUrl, formData);
+      await update(baseUrl, formData);
 
-    onClose();
-    const refreshBtn = document.querySelector(".toolbar-button[aria-label='Refresh dashboard']");
-    if (refreshBtn) {
-      // @ts-ignore
-      refreshBtn.click();
+      onClose();
+      const refreshBtn = document.querySelector(".toolbar-button[aria-label='Refresh dashboard']");
+      if (refreshBtn) {
+        // @ts-ignore
+        refreshBtn.click();
+      }
+    } catch (error: any) {
+      alert(error.response?.data?.message || error.message);
     }
   };
 

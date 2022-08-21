@@ -29,15 +29,19 @@ export default function CreateModal({ isOpen, baseUrl, onClose }: CreateModalPro
   }, [isOpen, baseUrl]);
 
   const handleSubmit = async (e: any) => {
-    e.preventDefault();
+    try {
+      e.preventDefault();
 
-    await create(baseUrl, formData);
+      await create(baseUrl, formData);
 
-    onClose();
-    const refreshBtn = document.querySelector(".toolbar-button[aria-label='Refresh dashboard']");
-    if (refreshBtn) {
-      // @ts-ignore
-      refreshBtn.click();
+      onClose();
+      const refreshBtn = document.querySelector(".toolbar-button[aria-label='Refresh dashboard']");
+      if (refreshBtn) {
+        // @ts-ignore
+        refreshBtn.click();
+      }
+    } catch (error: any) {
+      alert(error.response?.data?.message || error.message);
     }
   };
 
