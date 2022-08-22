@@ -75,7 +75,7 @@ export default function FilterButton({ showFilter, columnKey, renderFilterModal,
               left: 0;
               top: 32px;
 
-              min-width: 248px;
+              min-width: 288px;
               max-height: 356px;
 
               padding: 12px;
