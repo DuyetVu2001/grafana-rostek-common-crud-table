@@ -50,13 +50,13 @@ export default function UpdateModal({ isOpen, baseUrl, data = null, onClose }: U
             // @ts-ignore
             refreshBtn.click();
           }
-          setActualDelete(false);
         } catch (error: any) {
           alert(error.response?.data?.message || error.message);
         }
       };
 
       deleteAsync();
+      setActualDelete(false);
     }
   }, [actualDelete, onClose, formData?.id, baseUrl]);
 
@@ -111,7 +111,7 @@ export default function UpdateModal({ isOpen, baseUrl, data = null, onClose }: U
           >
             Update
           </Button>
-          <Button onClick={() => setShowDeleteModal(true)} variant="destructive">
+          <Button type="button" onClick={() => setShowDeleteModal(true)} variant="destructive">
             Delete
           </Button>
         </form>
