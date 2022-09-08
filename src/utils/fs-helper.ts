@@ -1,10 +1,14 @@
+/*eslint no-restricted-imports: ["error", "fs"]*/
+import moment from 'moment';
+
 export function getNewFileHandle() {
   const myWindow: any = window;
+  const suggestedName = moment().format('DD-MM-YYYY-(HH:mm)') + '-manual-report';
 
   // For Chrome 86 and later...
   if ('showSaveFilePicker' in myWindow) {
     const opts = {
-      suggestedName: 'manual-report',
+      suggestedName,
       types: [
         {
           description: 'csv file',
@@ -17,7 +21,7 @@ export function getNewFileHandle() {
   // For Chrome 85 and earlier...
   const opts = {
     type: 'save-file',
-    suggestedName: 'manual-report',
+    suggestedName,
     accepts: [
       {
         description: 'Text file',

@@ -7,9 +7,9 @@ import { css, cx } from 'emotion';
 /*eslint no-restricted-imports: ["error", "fs"]*/
 import moment from 'moment';
 import axios from 'axios';
-import { saveFileAs } from 'utils/fs-helper';
+// import { saveFileAs } from 'utils/fs-helper';
 
-export default function DownloadButton({}) {
+export default function DownloadButton({ baseUrl }: { baseUrl: string }) {
   const theme = useTheme2();
 
   const [showPopup, setShowPopup] = React.useState(false);
@@ -22,8 +22,8 @@ export default function DownloadButton({}) {
   React.useEffect(() => {
     const selects = [0, 1, 2, 3, 4, 5, 6].map((item) => {
       const date = moment().subtract(item, 'days');
-      const value = date.format('DD/MM/YYYY');
-      let name = date.format('DD/MM/YYYY');
+      const value = date.format('DD-MM-YYYY');
+      let name = date.format('DD-MM-YYYY');
 
       if (item === 0) {
         name = 'Hôm nay';
@@ -36,19 +36,45 @@ export default function DownloadButton({}) {
   }, []);
 
   async function handleSubmit() {
-    const randomNumber = Math.floor(Math.random() * 9999);
-    const response = await axios.get('http://localhost:5000/download/' + randomNumber);
-    const content = response.data;
+    try {
+      const submitData = selectData.filter((item) => item.isChecked).map((item) => item.value);
+      if (submitData?.length <= 0) {
+        return;
+      }
 
-    await saveFileAs(content);
+      const queries = submitData.join('&days=');
 
-    // const submitData = selectData.filter((item) => item.isChecked).map((item) => item.value);
+      const randomNumber = Math.floor(Math.random() * 9999);
+      // const response = await axios.get(`${baseUrl}/get-report/${randomNumber}?days=${queries}`);
+      // const content = response.data;
+      // await saveFileAs(content);
 
-    // const body = {
-    //   dow: submitData,
-    // };
+      axios({
+        url: `${baseUrl}/get-report/${randomNumber}?days=${queries}`, //your url
+        method: 'GET',
+        responseType: 'arraybuffer',
+      }).then((response) => {
+        const type = response.headers['content-type'];
+        const blob = new Blob([response.data], { type: type, encoding: 'UTF-8' } as any);
 
-    // console.log(body);
+        const link = document.createElement('a');
+        const href = window.URL.createObjectURL(blob);
+
+        const suggestedName = moment().format('DD-MM-YYYY-(HH:mm)') + '-manual-report';
+
+        link.href = href;
+        link.download = `${suggestedName}.xlsx`;
+        link.click();
+
+        // clean up "a" element & remove ObjectURL
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(href);
+      });
+    } catch (error: any) {
+      alert(error.response?.data?.message || error.message);
+    } finally {
+      setShowPopup(false);
+    }
   }
 
   function handleCheckAll() {
