@@ -105,7 +105,7 @@ export const TablePanel: React.FC<Props> = ({ options, data, width, height }) =>
         `
       )}
     >
-      {/* create button */}
+      {/* buttons */}
       <div
         className={cx(
           css`
@@ -115,10 +115,11 @@ export const TablePanel: React.FC<Props> = ({ options, data, width, height }) =>
         )}
       >
         <HorizontalGroup justify="flex-end">
+          {/* report button */}
           {options.showReportButton && (
             <HorizontalGroup justify="flex-end">
-              <CustomButton.AutoReportButton />
-              <CustomButton.DownloadButton />
+              {/* <CustomButton.AutoReportButton /> */}
+              <CustomButton.DownloadButton baseUrl={options.baseUrl} />
             </HorizontalGroup>
           )}
           {options.showForm && <Button onClick={() => setModalCreate(true)}>Create</Button>}
