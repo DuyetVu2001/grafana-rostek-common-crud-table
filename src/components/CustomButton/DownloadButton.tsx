@@ -60,10 +60,10 @@ export default function DownloadButton({ baseUrl }: { baseUrl: string }) {
         const link = document.createElement('a');
         const href = window.URL.createObjectURL(blob);
 
-        const suggestedName = moment().format('DD-MM-YYYY-(HH:mm)') + '-manual-report';
+        // const suggestedName = moment().format('DD-MM-YYYY-(HH:mm)') + '-manual-report';
 
         link.href = href;
-        link.download = `${suggestedName}.xlsx`;
+        link.download = response.headers?.['content-disposition']?.split('filename=')[1] || 'report.xlsx';
         link.click();
 
         // clean up "a" element & remove ObjectURL
